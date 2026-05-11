@@ -1,0 +1,55 @@
+%% Earth Monitor — architecture for mermaid-cli (see README for exported PDF/JPEG)
+flowchart TB
+  subgraph legend["Legend"]
+    L1["Container = runs in Docker Compose on your machine"]
+    L2["External = internet API, not in this repo"]
+    L3["User input / output = what crosses each boundary"]
+  end
+
+  subgraph user["User — on your laptop, not containerized"]
+    UIN["Input: search text e.g. floods in Paris; location names for hotspots"]
+    UOUT["Output: map UI, scene cards, image URLs, hotspot counts and labels"]
+  end
+
+  subgraph webc["Container: web — Angular"]
+    W["Serves static SPA on host port 80"]
+    Wnote["Stores: nothing durable; builds into image"]
+  end
+
+  subgraph nodec["Container: server — Node Apollo GraphQL :4000"]
+    GQL["POST /graphql only"]
+    GQLnote["Stores: none; forwards to copernicus"]
+    RES["Resolvers: search text → GET /search; locations → GET /hotspots"]
+  end
+
+  subgraph pyc["Container: copernicus — FastAPI :5001"]
+    PY["Python: query parse, geocode, Copernicus client, predict_alert"]
+    PYnote["Stores: none by default; env secrets only"]
+  end
+
+  subgraph support["Other compose containers — optional to main click path"]
+    OS["OpenSearch :9200 — indices for vector/search experiments"]
+    SP["Spark — batch-style processing"]
+    KF["Kafka + Zookeeper — streaming"]
+  end
+
+  subgraph ext["External — not containerized here"]
+    CDS["Copernicus Data Space API — Sentinel-2 scenes in response"]
+    HF["Hugging Face — Mistral for NL parse"]
+    NM["Nominatim — bbox city country"]
+  end
+
+  UIN --> W
+  W -->|"HTTP POST /graphql; input: GraphQL query + variables"| GQL
+  GQL --> RES
+  RES -->|"HTTP GET; input: query string or locations[]"| PY
+  PY --> CDS
+  PY --> HF
+  PY --> NM
+  PY -->|"JSON: scenes + imageUrl; hotspots alertCount alertType"| RES
+  RES -->|"GraphQL JSON response"| W
+  W --> UOUT
+
+  PY -.->|"may be used by ingestion jobs"| OS
+  PY -.-> SP
+  PY -.-> KF

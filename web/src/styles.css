@@ -1,0 +1,103 @@
+:root {
+    /* Typography */
+    --font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+    /* Palette - Navy/Green/Grey */
+    --color-bg: #f5f5f7;
+    --color-surface: #ffffff;
+    --color-primary: #002147;
+    --color-accent: #1b4332;
+    --color-text-main: #1d1d1f;
+    --color-text-muted: #86868b;
+    --color-border: #d2d2d7;
+
+    --color-success-bg: #e3f2fd;
+    --color-success-text: #002147;
+    --color-warning-bg: #fff3e0;
+    --color-warning-text: #e65100;
+    --color-danger-bg: #ffebee;
+    --color-danger-text: #c62828;
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --radius: 12px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background-color: var(--color-bg);
+    color: var(--color-text-main);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding-top: 60px;
+}
+
+/* Animations */
+@keyframes scale-ring {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1.25);
+        opacity: 0;
+    }
+}
+
+.radar-btn {
+    position: relative;
+    overflow: visible;
+    z-index: 1;
+    transition: transform 0.2s;
+    /* Keep existing transition for translateY */
+}
+
+.radar-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    border: 1px solid rgba(255, 255, 255, 1);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.radar-btn:hover::after {
+    animation: scale-ring 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.radar-btn:hover {
+    transform: translateY(-1px);
+}
+
+@keyframes slide-down-fade {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+        max-height: 0;
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 1000px;
+    }
+}
+
+.animate-reveal {
+    animation: slide-down-fade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    overflow: hidden;
+}

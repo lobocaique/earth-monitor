@@ -1,0 +1,7 @@
+torch
+transformers
+pillow
+requests
+optuna
+scikit-learn
+numpy

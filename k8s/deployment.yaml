@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecologistics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ecologistics
+  template:
+    metadata:
+      labels:
+        app: ecologistics
+    spec:
+      containers:
+        # Frontend
+        - name: web
+          image: ecologistics-web:latest
+          ports:
+            - containerPort: 80
+        # Backend
+        - name: server
+          image: ecologistics-server:latest
+          ports:
+            - containerPort: 4000
+          env:
+            - name: OPENSEARCH_HOST
+              value: "localhost" # Simulating strict pod coupling for simplicity, else use Service
+        # OpenSearch (Simplified sidecar for demo)
+        - name: opensearch
+          image: opensearchproject/opensearch:2.11.0
+          env:
+            - name: discovery.type
+              value: single-node
+            - name: DISABLE_SECURITY_PLUGIN
+              value: "true"
+          ports:
+            - containerPort: 9200
